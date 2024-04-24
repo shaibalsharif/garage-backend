@@ -1,4 +1,4 @@
-const { pool } = require("./postgres_config")
+const { pool } = require("./db_config")
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 
@@ -30,7 +30,7 @@ app.post('/users', [
 const getUsers = (request, response) => {
     pool.query('SELECT * FROM users ORDER BY id ASC', (error, results) => {
         if (error) {
-            throw error
+            throw error 
         }
         response.status(200).json(results.rows)
     })

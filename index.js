@@ -1,6 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const app = express()
+require('dotenv').config()
 
 app.use(cors())
 const bodyParser = require('body-parser')
@@ -10,6 +11,7 @@ app.use(helmet());
 
 const port = 3000
 const db = require('./queries')
+const { local_pool_config, global_pool_config } = require('./db_config')
 
 app.use(bodyParser.json())
 app.use(
@@ -20,9 +22,9 @@ app.use(
 
 
 
-
+ 
 app.get('/', (request, response) => {
-    response.json({ info: 'Node.js, Express, and Postgres API' })
+    response.json({ info: `Node.js, Express, and Postgres API` ,tets:global_pool_config})
 })
 
 app.get('/users', db.getUsers)
