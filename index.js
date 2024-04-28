@@ -12,7 +12,7 @@ const bodyParser = require('body-parser')
 const helmet = require('helmet');
 app.use(helmet());
 
-const port = 3000
+const port = 3333
 const db = require('./queries')
 const { local_pool_config, global_pool_config } = require('./db_config')
 

@@ -1,24 +1,27 @@
 // const db = require('../db_config');
 const customerQueries = require('../queries/customerQueries');
-const { response } = require('express');
+const { response, json } = require('express');
 
 const createCustomer = async (req, res) => {
   try {
+
     const { person_id, name, email } = req.body;
 
-    const newCustomer = await customerQueries.createCustomer(person_id, name, email)
-    res.json(newCustomer.rows[0]);
+    const newCustomer = await customerQueries.createCustomer(req.body)
+
+    res.json(newCustomer);
   } catch (err) {
-    console.error('Error creating customer: ', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.log(err);
+    res.status(500).json(`${err}`)
   }
 };
 
 const getCustomers = async (req, res) => {
- 
+
   try {
+
     const customers = await customerQueries.getCustomers()
-    
+
     res.json(customers);
   } catch (err) {
     console.error('Error getting customer list: ', err);
@@ -27,10 +30,13 @@ const getCustomers = async (req, res) => {
 };
 
 const getCustomerById = async (req, res) => {
-  const id = 2
+
+  const id = req.params.id
+
   try {
-    const customer = await customerQueries.getCustomerById()
-    res.json(customer.row[0]);
+    const customers = await customerQueries.getCustomerById(id)
+
+    res.json(customers?.length ? customers[0] : {});
   } catch (err) {
     console.error('Error getting customer by id : ', err);
     res.status(500).json({ error: 'Internal server error' });
