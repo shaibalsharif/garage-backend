@@ -44,26 +44,30 @@ const getCustomerById = async (req, res) => {
 };
 const updateCustomer = async (req, res) => {
   try {
-    const { person_id, name, email } = req.body;
 
-    const updatedCustomer = await customerQueries.updateCustomer(person_id, name, email)
-    res.json(updatedCustomer.rows[0]);
+    const id = req.params.id
+    const updatedCustomer = await customerQueries.updateCustomer(id, req.body)
+
+    res.json(updatedCustomer);
   } catch (err) {
-    console.error('Error creating customer: ', err);
-    res.status(500).json({ error: 'Internal server error' });
+    console.log(err);
+    res.status(500).json(`${err}`)
   }
 };
 
 const deleteCustomer = async (req, res) => {
-  const id = 2
+
+  const id = req.params.id
+  
   try {
-    customerQueries.deleteCustomer(id).then(response => {
-      res.status(200).json(`Deleted Customer with id${id}`)
-    })
-  } catch (err) {
-    console.error('Error creating customer: ', err);
-    res.status(500).json({ error: 'Internal server error' });
+
+    const removedCustomer = await customerQueries.deleteCustomer(id)
+    res.json(removedCustomer);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(`${error}`)
   }
+
 };
 
 
