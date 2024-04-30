@@ -22,7 +22,7 @@ const checkDuplicatePhone = async (phone, exception_id) => {
 };
 
 const createCustomer = async ({ first_name, last_name, dob, sex, email, phone, address_name, address_type,
-  road_no, house_no, city, country, postal_code }) => {
+  road_no, house_no, city, country, postal_code,emergency }) => {
 
   try {
     await checkDuplicateEmail(email);
@@ -32,9 +32,9 @@ const createCustomer = async ({ first_name, last_name, dob, sex, email, phone, a
 
     const newPerson = await pool.query(
       `INSERT INTO person (first_name, last_name, dob, 
-        sex, email, phone, added_date)
-         VALUES ($1, $2, $3, $4, $5, $6, NOW()) RETURNING id`,
-      [first_name, last_name, dob, sex, email, phone]
+        sex, email, phone,emergency, added_date)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING id`,
+      [first_name, last_name, dob, sex, email, phone,emergency]
     );
     const personId = newPerson.rows[0].id;
 
@@ -138,7 +138,7 @@ const getCustomerById = async (id) => {
 };
 
 const updateCustomer = async (id, { first_name, last_name, dob, sex, email, phone, address_name, address_type,
-  road_no, house_no, city, country, postal_code }) => {
+  road_no, house_no, city, country, postal_code,emergency }) => {
   try {
 
 
@@ -152,8 +152,8 @@ const updateCustomer = async (id, { first_name, last_name, dob, sex, email, phon
     await checkDuplicatePhone(phone, person_id);
     const updatedPerson = await pool.query(
       `UPDATE person SET first_name = $1 , last_name = $2, dob = $3, sex = $4, 
-       email = $5, phone = $6  WHERE id = ${person_id}`,
-      [first_name, last_name, dob, sex, email, phone]
+       email = $5, phone = $6, emergency = $7  WHERE id = ${person_id}`,
+      [first_name, last_name, dob, sex, email, phone, emergency]
     );
 
     const updated_address = await pool.query(

@@ -5,7 +5,7 @@ const app = express();
 
 const customerRoutes = require('./routes/customerRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
-
+const carRoutes = require('./routes/carRoutes');
 app.use(cors())
 const bodyParser = require('body-parser')
 
@@ -40,6 +40,7 @@ app.get('/', (request, response) => {
 
 // Customer Routes
 app.use('/api/customers', customerRoutes);
+app.use('/api/cars', carRoutes);
 
 // Employee Routes
 // app.use('/api/employees', employeeRoutes);
