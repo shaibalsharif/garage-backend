@@ -24,21 +24,21 @@ const checkDuplicateEngine = async (engine, exception_id) => {
     }
 };
 
-const addCar = async () => {
-
+const addCar = async ({ customer_id, brand, model, plate, entry_date, color, engine, emergency, initial_problem, status }) => {
+    console.log({ customer_id, brand, model, plate, entry_date, color, engine, emergency, initial_problem, status });
 
     try {
         await checkDuplicateEngine(engine);
         await checkDuplicateNumberPlate(plate);
 
-
+        console.log();
         const newCar = await pool.query(
-            `INSERT INTO cars (car_id, brand, model, plate, entry_date, color, engine, emergency,initial_problem,status)
+            `INSERT INTO cars (customer_id, brand, model, plate, entry_date, color, engine, emergency,initial_problem,status)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9,$10) RETURNING id`,
             [customer_id, brand, model, plate, entry_date, color, engine, emergency, initial_problem, status]
         );
         const carId = newCar.rows[0].id;
-
+        console.log(carId);
         return {
             carId
         };
@@ -47,14 +47,22 @@ const addCar = async () => {
     }
 };
 
-const getCarList = async () => {
+const getCarList = async (id, customer_id, brand, model, plate) => {
+   console.log(customer_id);
     try {
         const carList = await pool.query(`
-            SELECT cars.*, CONCAT(person.first_name, ' ', person.last_name, '-' ,cars.customer_id) AS customer
-            FROM cars 
-            LEFT JOIN customers ON CAST(cars.customer_id AS INTEGER) = CAST(customers.id AS INTEGER) 
-            LEFT JOIN person ON CAST(customers.person_id AS INTEGER) = CAST(person.id AS INTEGER)
-            ORDER BY cars.status, cars.customer_id
+        SELECT cars.*, CONCAT(person.first_name, ' ', person.last_name, '-', cars.customer_id) AS customer
+        FROM cars 
+        LEFT JOIN customers ON CAST(cars.customer_id AS INTEGER) = CAST(customers.id AS INTEGER) 
+        LEFT JOIN person ON CAST(customers.person_id AS INTEGER) = CAST(person.id AS INTEGER)
+        ${(id || customer_id || brand || model || plate) ?
+            `WHERE ${id ? `cars.id = CAST(${id} As INTEGER) ` : ''}
+            ${customer_id ? `${id ? 'AND ' : ''}cars.customer_id = '${customer_id}' ` : ''} 
+            ${brand ? `${customer_id || id ? 'AND ' : ''}cars.brand LIKE '%${brand}%' ` : ''}
+            ${model ? `${customer_id || id || brand ? 'AND ' : ''}cars.model LIKE '%${model}%' ` : ''}
+            ${plate ? `${customer_id || id || brand || model ? 'AND ' : ''}cars.plate LIKE '%${plate}%' ` : ''}
+            ` : ''}
+        ORDER BY cars.status, cars.customer_id
         `);
 
         return carList.rows;
@@ -67,14 +75,12 @@ const updateCar = async (id, { brand, model, plate, color, engine, emergency,
     initial_problem, status, }) => {
 
     try {
-
-
         await checkDuplicateNumberPlate(plate, id);
         await checkDuplicateEngine(engine, id);
 
         const updateCar = await pool.query(
             `UPDATE cars SET brand = $1 , model = $2, plate = $3, color = $4, 
-        engine = $5, emergency = $6, initial_problem=$7, status=$8 WHERE id = ${id}`,
+        engine = $5, emergency = $6, initial_problem = $7, status = $8 WHERE id = ${id}`,
             [brand, model, plate, color, engine, emergency,
                 initial_problem, status]
         );
@@ -90,19 +96,17 @@ const updateCar = async (id, { brand, model, plate, color, engine, emergency,
 const deleteCar = async (id) => {
     try {
 
-  
-      
-      await pool.query(
-        'DELETE FROM cars WHERE id = $1', [id]
-      );
-      
-  
-  
+        await pool.query(
+            'DELETE FROM cars WHERE id = $1', [id]
+        );
+
+
+
     } catch (error) {
-      throw new Error(`${error.message}`);
+        throw new Error(`${error.message}`);
     }
-    
-  };
+
+};
 
 
 
